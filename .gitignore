@@ -1,0 +1,21 @@
+# Środowiska wirtualne
+.venv/
+venv/
+env/
+
+# Konfiguracja edytorów (PyCharm, VS Code)
+.idea/
+.vscode/
+
+# Pliki tymczasowe i cache Pythona
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pliki z danymi pobieranymi przez scikit-learn
+data/
+
+# Zapisane wagi modeli i pliki konfiguracyjne uczenia maszynowego
+
+# Jupyter Notebook (jeśli używasz)
+.ipynb_checkpoints/
