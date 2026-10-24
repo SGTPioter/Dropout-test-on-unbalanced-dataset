@@ -3,7 +3,7 @@ from sklearn.datasets import fetch_covtype
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-def get_preprocessed_data(dataset_type, data_home="./data", random_state=67):
+def get_preprocessed_data(dataset_type, data_home="./data", random_state=67, return_scaler=False):
     print(f"\n--- Przygotowanie danych: WARIANT '{dataset_type.upper()}' ---")
     covtype = fetch_covtype()
     features = covtype.data.astype(np.float32)
@@ -55,4 +55,6 @@ def get_preprocessed_data(dataset_type, data_home="./data", random_state=67):
     X_test[:, :10] = scaler.transform(X_test[:, :10])
 
     print(f"Rozmiary zbiorów - Train: {len(X_train)} | Val: {len(X_val)} | Test: {len(X_test)}")
+    if return_scaler:
+        return X_train, y_train, X_val, y_val, X_test, y_test, num_classes, scaler
     return X_train, y_train, X_val, y_val, X_test, y_test, num_classes
