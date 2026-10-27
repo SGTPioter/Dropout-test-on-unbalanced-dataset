@@ -43,7 +43,10 @@ for row_idx, dataset in enumerate(datasets):
 
             ax.set_ylim(0, 105)
             ax.set_xticks(classes)
-            ax.set_xticklabels([f'Kl. {c}' for c in classes])
+            if dataset == 'edited':
+                ax.set_xticklabels(['Kl. 1', 'Kl. 2', 'Kl. 5', 'Kl. 6', 'Kl. 7'])
+            else:
+                ax.set_xticklabels([f'Kl. {c}' for c in classes])
             ax.set_title(f'{dataset.upper()} | Dropout: {rate}', fontsize=14, fontweight='bold')
             ax.set_ylabel('F1 [%]' if col_idx == 0 else '', fontsize=12)
             ax.set_xlabel('Numer klasy' if row_idx == 1 else '', fontsize=12)
@@ -59,6 +62,6 @@ plt.subplots_adjust(top=0.88)
 
 save_dir = os.path.join(BASE_DIR, 'imgs')
 os.makedirs(save_dir, exist_ok=True)
-save_path = os.path.join(save_dir, 'f1_score_per_class_respective_test.png')
+save_path = os.path.join(save_dir, 'f1_score_per_class_bars.png')
 plt.savefig(save_path, dpi=300, bbox_inches='tight')
 print(f"Zapisano w: {save_path}")

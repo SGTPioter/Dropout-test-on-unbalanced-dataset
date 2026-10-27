@@ -3,7 +3,7 @@ from sklearn.datasets import fetch_covtype
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-def get_preprocessed_data(dataset_type, data_home="./data", random_state=67, return_scaler=False):
+def get_preprocessed_data(dataset_type, random_state=67, return_scaler=False):
     print(f"\n--- Przygotowanie danych: WARIANT '{dataset_type.upper()}' ---")
     covtype = fetch_covtype()
     features = covtype.data.astype(np.float32)

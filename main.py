@@ -20,11 +20,11 @@ def run_experiment(X_train, y_train, X_val, y_val, rate, dataset_type, num_class
     model = Sequential([
         Input(shape=(X_train.shape[1],)),
         Dense(256, activation='relu'),
-        Dropout(rate) if rate > 0 else Dropout(0.0),
+        Dropout(rate),
         Dense(256, activation='relu'),
-        Dropout(rate) if rate > 0 else Dropout(0.0),
+        Dropout(rate),
         Dense(256, activation='relu'),
-        Dropout(rate) if rate > 0 else Dropout(0.0),
+        Dropout(rate),
         Dense(num_classes, activation='softmax')
     ])
 
