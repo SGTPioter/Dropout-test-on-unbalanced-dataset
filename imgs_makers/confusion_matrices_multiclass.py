@@ -10,14 +10,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 datasets = ['clear', 'edited']
 rates = [0.0, 0.2, 0.5]
 
-fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(16, 20))
-fig.suptitle('Wieloklasowe macierze pomyłek z ewaluacją (Strata i Czułość)', fontsize=20, fontweight='bold', y=0.96)
+# Układ 2 wiersze na 3 kolumny: wiersz 0 -> CLEAR (3 dropouty), wiersz 1 -> EDITED (3 dropouty)
+fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(18, 12))
+fig.suptitle('Wieloklasowe macierze pomyłek z ewaluacją (Strata i Czułość)', fontsize=18, fontweight='bold', y=0.96)
 
-for col_idx, dataset in enumerate(datasets):
+for row_idx, dataset in enumerate(datasets):
     X_t, y_t, X_v, y_v, X_te, y_te, num_classes = get_preprocessed_data(dataset)
     y_te_flat = y_te.flatten()
 
-    for row_idx, rate in enumerate(rates):
+    for col_idx, rate in enumerate(rates):
         ax = axes[row_idx, col_idx]
         model_path = os.path.join(BASE_DIR, 'models', dataset, f'model_dropout_{rate}_best.keras')
 
@@ -43,7 +44,7 @@ for col_idx, dataset in enumerate(datasets):
                 for j in range(num_classes):
                     val = cm_raw[i, j]
                     text_color = "white" if cm_norm[i, j] > 0.5 else "black"
-                    ax.text(j, i, str(val), ha="center", va="center", color=text_color, fontweight='bold', fontsize=12)
+                    ax.text(j, i, str(val), ha="center", va="center", color=text_color, fontweight='bold', fontsize=11)
 
             ax.set_xticks(np.arange(num_classes))
             ax.set_yticks(np.arange(num_classes))
@@ -52,24 +53,27 @@ for col_idx, dataset in enumerate(datasets):
 
             ax.set_title(
                 f'Zbiór: {dataset.upper()} | Dropout: {rate}\nStrata: {loss:.3f} | Czułość (Macro): {recall:.3f}',
-                fontsize=14, pad=10)
-            ax.set_xlabel('Przewidywana klasa')
+                fontsize=13, pad=10
+            )
+
+            if row_idx == 1:
+                ax.set_xlabel('Przewidywana klasa', fontsize=11)
+            else:
+                ax.set_xlabel('')
 
             if col_idx == 0:
-                ax.set_ylabel('Rzeczywista klasa')
+                ax.set_ylabel('Rzeczywista klasa', fontsize=11)
             else:
                 ax.set_ylabel('')
         else:
             ax.axis('off')
 
 plt.tight_layout()
-plt.subplots_adjust(top=0.92)
+plt.subplots_adjust(top=0.90)
 
 save_dir = os.path.join(BASE_DIR, 'imgs')
 os.makedirs(save_dir, exist_ok=True)
-script_name = os.path.basename(__file__)
-image_name = os.path.splitext(script_name)[0] + '.png'
-save_path = os.path.join(save_dir, image_name)
+save_path = os.path.join(save_dir, 'confusion_matrices_multiclass.png')
 
 plt.savefig(save_path, dpi=300, bbox_inches='tight')
 print(f"Zapisano w: {save_path}")
