@@ -12,7 +12,6 @@ rates = [0.0, 0.2, 0.5]
 
 # Układ 2 wiersze na 3 kolumny: wiersz 0 -> CLEAR (3 dropouty), wiersz 1 -> EDITED (3 dropouty)
 fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(18, 12))
-fig.suptitle('Wieloklasowe macierze pomyłek z ewaluacją (Strata i Czułość)', fontsize=18, fontweight='bold', y=0.96)
 
 for row_idx, dataset in enumerate(datasets):
     X_t, y_t, X_v, y_v, X_te, y_te, num_classes = get_preprocessed_data(dataset)
@@ -48,8 +47,13 @@ for row_idx, dataset in enumerate(datasets):
 
             ax.set_xticks(np.arange(num_classes))
             ax.set_yticks(np.arange(num_classes))
-            ax.set_xticklabels([f'Kl. {i}' for i in range(num_classes)])
-            ax.set_yticklabels([f'Kl. {i}' for i in range(num_classes)])
+
+            if dataset == 'edited':
+                ax.set_xticklabels(['Kl. 0', 'Kl. 1', 'Kl. 2', 'Kl. 5', 'Kl. 6'])
+                ax.set_yticklabels(['Kl. 0', 'Kl. 1', 'Kl. 2', 'Kl. 5', 'Kl. 6'])
+            else:
+                ax.set_xticklabels([f'Kl. {i}' for i in range(num_classes)])
+                ax.set_yticklabels([f'Kl. {i}' for i in range(num_classes)])
 
             ax.set_title(
                 f'Zbiór: {dataset.upper()} | Dropout: {rate}\nStrata: {loss:.3f} | Czułość (Macro): {recall:.3f}',

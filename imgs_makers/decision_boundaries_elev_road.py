@@ -78,6 +78,6 @@ plt.subplots_adjust(top=0.92)
 
 save_dir = os.path.join(BASE_DIR, 'imgs')
 os.makedirs(save_dir, exist_ok=True)
-save_path = os.path.join(save_dir, 'decision_boundaries_elev_road_clean.png')
+save_path = os.path.join(save_dir, 'decision_boundaries_elev_road.png')
 plt.savefig(save_path, dpi=300, bbox_inches='tight')
 print(f"Wygenerowano czysty wykres granic decyzyjnych i zapisano w: {save_path}")

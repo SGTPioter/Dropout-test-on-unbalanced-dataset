@@ -3,58 +3,62 @@ from sklearn.datasets import fetch_covtype
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
+DROP = [3, 4] # usuwane klasy (numeracja CLEAR)
+LUT = np.full(7, -1, dtype=np.int64)
+LUT[[0, 1, 2, 5, 6]] = np.arange(5) # CLEAR -> EDITED: 0,1,2,5,6 -> 0..4
+
+
+def split_clear(random_state=67):
+    """JEDEN podział na pełnym zbiorze; surowe (nieskalowane) cechy."""
+    cov = fetch_covtype()
+    X = cov.data.astype(np.float32)
+    y = (cov.target - 1).astype(np.int64)
+    X_tr, X_h, y_tr, y_h = train_test_split(
+        X, y, test_size=0.30, stratify=y, random_state=random_state)
+    X_va, X_te, y_va, y_te = train_test_split(
+        X_h, y_h, test_size=0.50, stratify=y_h, random_state=random_state)
+    return (X_tr, y_tr), (X_va, y_va), (X_te, y_te)
+
+
+def edit_split(X, y, random_state=67, factor=3):
+    """Edycja jednego podzbioru: wycięcie klas, remap, ograniczenie klas 0 i 1."""
+    keep = ~np.isin(y, DROP)
+    X, y = X[keep], LUT[y[keep]]
+
+    cap = np.bincount(y).min() * factor
+    rng = np.random.default_rng(random_state)
+    idx = []
+    for c in np.unique(y):
+        ci = np.where(y == c)[0]
+        if c in (0, 1) and len(ci) > cap:
+            ci = rng.choice(ci, cap, replace=False)
+        idx.append(ci)
+    idx = np.concatenate(idx)
+    rng.shuffle(idx)
+    return X[idx], y[idx]
+
+
+def fit_scaler(X_train):
+    return StandardScaler().fit(X_train[:, :10])
+
+
+def apply_scaler(scaler, X):
+    X = X.copy()
+    X[:, :10] = scaler.transform(X[:, :10])
+    return X
+
+
 def get_preprocessed_data(dataset_type, random_state=67, return_scaler=False):
-    print(f"\n--- Przygotowanie danych: WARIANT '{dataset_type.upper()}' ---")
-    covtype = fetch_covtype()
-    features = covtype.data.astype(np.float32)
-    labels = (covtype.target - 1).astype(np.int64).reshape(-1, 1)
-
+    tr, va, te = split_clear(random_state)
     if dataset_type == 'edited':
-        # Wariant z uciętymi minimalnymi klasami i ze sztucznie zbalansowanymi licznościami klas
-        mask_keep = ~np.isin(labels.flatten(), [3, 4])
-        features = features[mask_keep]
-        labels = labels[mask_keep]
-
-        mapping = {0: 0, 1: 1, 2: 2, 5: 3, 6: 4}
-        labels = np.vectorize(mapping.get)(labels)
-
-        unique, counts = np.unique(labels, return_counts=True)
-        min_class_count = np.min(counts)
-        max_allowed = min_class_count * 3
-
-        indices_to_keep = []
-        for cls in unique:
-            cls_indices = np.where(labels.flatten() == cls)[0]
-            if cls in [0, 1] and len(cls_indices) > max_allowed:
-                np.random.seed(random_state)
-                sampled_indices = np.random.choice(cls_indices, max_allowed, replace=False)
-                indices_to_keep.extend(sampled_indices)
-            else:
-                indices_to_keep.extend(cls_indices)
-
-        np.random.seed(random_state)
-        np.random.shuffle(indices_to_keep)
-
-        features = features[indices_to_keep]
-        labels = labels[indices_to_keep]
+        tr, va, te = (edit_split(*s, random_state) for s in (tr, va, te))
         num_classes = 5
     else:
-        # czyste dane pobrane z sklearn
         num_classes = 7
 
-    X_train, X_hold, y_train, y_hold = train_test_split(
-        features, labels, test_size=0.30, stratify=labels, random_state=random_state
-    )
-    X_val, X_test, y_val, y_test = train_test_split(
-        X_hold, y_hold, test_size=0.50, stratify=y_hold, random_state=random_state
-    )
+    scaler = fit_scaler(tr[0])   # tylko na treningu danego wariantu
+    X_tr, X_va, X_te = (apply_scaler(scaler, s[0]) for s in (tr, va, te))
+    print(f"\n--- {dataset_type.upper()} --- Train: {len(X_tr)} | Val: {len(X_va)} | Test: {len(X_te)}")
 
-    scaler = StandardScaler()
-    X_train[:, :10] = scaler.fit_transform(X_train[:, :10])
-    X_val[:, :10] = scaler.transform(X_val[:, :10])
-    X_test[:, :10] = scaler.transform(X_test[:, :10])
-
-    print(f"Rozmiary zbiorów - Train: {len(X_train)} | Val: {len(X_val)} | Test: {len(X_test)}")
-    if return_scaler:
-        return X_train, y_train, X_val, y_val, X_test, y_test, num_classes, scaler
-    return X_train, y_train, X_val, y_val, X_test, y_test, num_classes
+    out = (X_tr, tr[1], X_va, va[1], X_te, te[1], num_classes)
+    return out + (scaler,) if return_scaler else out

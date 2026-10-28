@@ -50,7 +50,11 @@ for col_idx, dataset in enumerate(datasets):
             ax.set_xticks([0, 1, 2])
             ax.set_xticklabels(['Precyzja (Precision)', 'Czułość (Recall)', 'F1-Score'], fontsize=12)
             ax.set_yticks(np.arange(num_classes))
-            ax.set_yticklabels([f'Klasa {i}' for i in range(num_classes)], fontsize=12)
+
+            if dataset == 'edited':
+                ax.set_yticklabels(['Klasa 0', 'Klasa 1', 'Klasa 2', 'Klasa 5', 'Klasa 6'], fontsize=12)
+            else:
+                ax.set_yticklabels([f'Klasa {i}' for i in range(num_classes)], fontsize=12)
 
             ax.set_title(f'{dataset.upper()} | Dropout: {rate}', fontsize=16, pad=10)
 

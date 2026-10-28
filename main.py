@@ -58,7 +58,7 @@ scenarios = ['clear', 'edited']
 rates = [0.0, 0.2, 0.5]
 
 for dataset_type in scenarios:
-    X_t, y_t, X_v, y_v, X_te, y_te, num_classes = get_preprocessed_data(dataset_type)
+    X_t, y_t, X_v, y_v, X_te, y_te, num_classes, _ = get_preprocessed_data(dataset_type)
 
     for rate in rates:
         run_experiment(X_t, y_t, X_v, y_v, rate, dataset_type, num_classes)

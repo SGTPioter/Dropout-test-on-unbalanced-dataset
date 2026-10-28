@@ -44,7 +44,7 @@ for row_idx, dataset in enumerate(datasets):
             ax.set_ylim(0, 105)
             ax.set_xticks(classes)
             if dataset == 'edited':
-                ax.set_xticklabels(['Kl. 1', 'Kl. 2', 'Kl. 5', 'Kl. 6', 'Kl. 7'])
+                ax.set_xticklabels(['Kl. 0', 'Kl. 1', 'Kl. 2', 'Kl. 5', 'Kl. 6'])
             else:
                 ax.set_xticklabels([f'Kl. {c}' for c in classes])
             ax.set_title(f'{dataset.upper()} | Dropout: {rate}', fontsize=14, fontweight='bold')
